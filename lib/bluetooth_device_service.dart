@@ -24,7 +24,7 @@ class BluetoothDeviceService extends GetxService {
     super.onReady();
   }
 
-  final gyroStream = StreamController.broadcast();
+  final sensorStream = StreamController.broadcast();
 
   static const String S_CLIP_SERVICE_UUID =
       "360c8f5b-40a1-4268-bfe7-f18cbc0ed52b";
@@ -105,7 +105,7 @@ class BluetoothDeviceService extends GetxService {
   scanDevices() async {
     if (blueState == BluetoothAdapterState.on && isScanning == false) {
       log("==========> scan start");
-      gyroStream.sink.add({"is_scanning": true});
+      sensorStream.sink.add({"is_scanning": true});
       await FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
     }
   }
@@ -115,7 +115,7 @@ class BluetoothDeviceService extends GetxService {
       log("==========> scan Stop");
 
       await FlutterBluePlus.stopScan();
-      gyroStream.sink.add({"is_scanning": false});
+      sensorStream.sink.add({"is_scanning": false});
     }
   }
 
@@ -162,11 +162,11 @@ class BluetoothDeviceService extends GetxService {
         if (event == BluetoothConnectionState.connected) {
           log("===========Device Connected ${device.advName}");
           isConnected = true;
-          gyroStream.sink.add({"is_connected": true});
+          sensorStream.sink.add({"is_connected": true});
         }
         if (event == BluetoothConnectionState.disconnected) {
           log("===========Device Disconnected ${device.advName}");
-          gyroStream.sink.add({"is_connected": false});
+          sensorStream.sink.add({"is_connected": false});
 
           isConnected = false;
           isRequestingConnection = false;
@@ -214,7 +214,7 @@ class BluetoothDeviceService extends GetxService {
       battery.onValueReceived.listen(
         (event) {
           if (event.isNotEmpty) {
-            gyroStream.sink.add({"battery_percentage": event.first});
+            sensorStream.sink.add({"battery_percentage": event.first});
           }
         },
       );
@@ -222,7 +222,7 @@ class BluetoothDeviceService extends GetxService {
     battery.read().then(
       (value) {
         if (value.isNotEmpty) {
-          gyroStream.sink.add({"battery_percentage": value.first});
+          sensorStream.sink.add({"battery_percentage": value.first});
         }
       },
     );
@@ -242,7 +242,7 @@ class BluetoothDeviceService extends GetxService {
 
   handleImuDataParsing(List<int> event) {
     // log("event ===> $event");
-    gyroStream.sink.add({"gyro_accel": event});
+    sensorStream.sink.add({"gyro_accel": event});
 
     // log("Accel_x = ${orinetation!.accel_x.degree} : acel_y= ${orinetation!.accel_y.degree} : acel_z= ${orinetation!.accel_z.degree}");
   }
@@ -262,7 +262,7 @@ class BluetoothDeviceService extends GetxService {
 
   handleGyroAccelParsing(List<int> event) {
     // gyroAccel = ImuData.fromBuffer(Uint8List.fromList(event).buffer);
-    gyroStream.sink.add({"gyro_accel": event});
+    sensorStream.sink.add({"gyro_accel": event});
   }
 
   String axisCounton = "";

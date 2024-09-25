@@ -20,7 +20,7 @@ class RepsController extends GetxController {
   final sensorService = Get.find<BluetoothDeviceService>();
 
   listenSensorServiceStream() {
-    sensorService.gyroStream.stream.listen((event) {
+    sensorService.sensorStream.stream.listen((event) {
       handleStreamevent(event);
     });
   }
